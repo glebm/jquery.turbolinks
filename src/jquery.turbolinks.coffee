@@ -24,7 +24,6 @@ turbolinksReady = ->
 
 # Fetch event handler
 fetch = ->
-  $(document).off(undefined, '**')
   $.isReady = false
 
 # Bind `ready` to DOM ready event
@@ -46,6 +45,14 @@ $.setFetchEvent = (event) ->
   $(document)
     .off('.turbolinks-fetch')
     .on(event + '.turbolinks-fetch', fetch)
+
+originalOn = $.fn.on
+$.fn.on = (types, selector, data, fn) ->
+  if selector == document && fn
+    for type in types when fn
+      handlers = $._data(@, 'handlers')[type] || []
+      return @ for h in handlers when h == fn
+  originalOn.apply(@, arguments)
 
 # Bind `ready` to Tubolinks page:load
 $.setReadyEvent('page:load')
